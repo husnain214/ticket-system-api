@@ -1,10 +1,9 @@
 from fastapi import FastAPI
-from app.models.db import create_db_and_tables, create_async_engine
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.db import create_db_and_tables
 from contextlib import asynccontextmanager
 
-from app.routes.auth import auth_backend, current_active_user, fastapi_users
+from app.routes.auth import auth_backend, fastapi_users
+from app.routes.tickets import router as tickets_router
 from app.schemas import UserRead, UserCreate, UserUpdate
 
 
@@ -35,3 +34,4 @@ app.include_router(
     prefix="/users",
     tags=["users"],
 )
+app.include_router(tickets_router)
