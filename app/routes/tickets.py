@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, HTTPException
 from app.schemas import TicketCreate
 from app.models.tables import Ticket, TicketEvent
