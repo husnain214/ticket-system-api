@@ -9,8 +9,8 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
-from app.models.db import get_user_db
-from app.models.tables import User
+from app.db.create_db import get_user_db
+from app.db.models import User
 
 SECRET = "secret"
 

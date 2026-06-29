@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
-from app.models.enums import (
+from app.db.enums import (
     TicketStatus,
     TicketPriority,
     TicketCategory,

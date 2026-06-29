@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from app.models.enums import (
+from app.db.enums import (
     UserRole,
     TicketStatus,
     TicketPriority,

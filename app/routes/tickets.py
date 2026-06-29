@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas import TicketCreate
-from app.models.tables import Ticket, TicketEvent
-from app.models.enums import EventType, TicketStatus, TicketCategory
-from app.models.db import get_async_session
+from app.db.models import Ticket, TicketEvent
+from app.db.enums import EventType, TicketStatus, TicketCategory
+from app.db.create_db import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, update
 from uuid import UUID

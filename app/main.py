@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.models.db import create_db_and_tables
+from app.db.create_db import create_db_and_tables
 from contextlib import asynccontextmanager
 
 from app.routes.auth import auth_backend, fastapi_users
