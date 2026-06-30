@@ -210,13 +210,94 @@ FastAPI · PostgreSQL · SQLAlchemy (async) · LangChain · LangGraph · Pinecon
 
 ## Running locally
 
+### Prerequisites
+- Python 3.11+
+- Docker (for PostgreSQL and Redis)
+- An OpenAI API key
+- A Pinecone account and API key
+
+### 1. Clone and install
+
 ```bash
 git clone <repo-url>
 cd ticket-system-api
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env  # fill in DB, Redis, OpenAI, Pinecone credentials
-docker compose up -d  # starts Postgres and Redis
+```
+
+### 2. Configure environment variables
+
+Create a `.env` file in the project root:
+
+```env
+# Database
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/ticketdb
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# Auth
+SECRET_KEY=your-secret-key-here
+
+# AI
+OPENAI_API_KEY=sk-...
+PINECONE_API_KEY=...
+```
+
+`SECRET_KEY` signs JWT tokens — generate one rather than leaving it blank:
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+### 3. Start infrastructure
+
+```bash
+docker compose up -d
+```
+
+This starts PostgreSQL and Redis as background containers. Confirm both are running:
+```bash
+docker compose ps
+```
+
+### 4. Create the Pinecone index (one-time setup)
+
+```bash
+python -m app.scripts.create_pinecone_index
+```
+
+This only needs to run once. Running it again will error since the index already exists — that's expected.
+
+### 5. Create database tables
+
+```bash
+python -c "import asyncio; from app.db.create_db import create_db_and_tables; asyncio.run(create_db_and_tables())"
+```
+
+### 6. Run the API
+
+```bash
 uvicorn app.main:app --reload
 ```
 
-API docs available at `/docs` once running.
+The API is now running at `http://localhost:8000`. Interactive docs are available at `http://localhost:8000/docs`.
+
+### 7. Verify the setup
+
+Hit the docs page and try creating a ticket through `POST /tickets`. If everything is wired correctly, you should see:
+- A new row in the `tickets` table
+- A background agent workflow kick off (check your terminal logs)
+- A resolved or escalated status within a few seconds
+
+---
+
+## Environment variables reference
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | Async PostgreSQL connection string. Use `postgresql+asyncpg://` scheme, not plain `postgresql://`. |
+| `REDIS_URL` | Yes | Redis connection string for the Pub/Sub event bus. |
+| `SECRET_KEY` | Yes | Used to sign JWT tokens. Never reuse a dev key in production. |
+| `OPENAI_API_KEY` | Yes | Used by every LangChain `ChatOpenAI` call across all agent nodes. |
+| `PINECONE_API_KEY` | Yes | Used for similarity search against past resolved tickets. |
