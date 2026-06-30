@@ -1,41 +1,52 @@
-from langchain_core.prompts import ChatPromptTemplate
+from app.utils.pinecone_tools import search_similar_tickets, store_resolved_ticket
+from app.agents.state import AgentState
+from app.agents.prompts.billing import billing_prompt
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import HumanMessage, AIMessage
+from app.db.enums import TicketStatus
 
-billing_prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """
-            You are a billing specialist for an enterprise support platform.
+llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
 
-            Your job is to resolve billing related support tickets professionally and concisely.
 
-            You handle:
-            - Duplicate or incorrect charges
-            - Refund requests
-            - Invoice disputes
-            - Subscription and plan changes
-            - Payment failures
+async def billing_node(state: AgentState) -> AgentState:
+    try:
+        context = search_similar_tickets(
+            category=state["category"], description=state["description"]
+        )
 
-            Guidelines:
-            - Be professional and empathetic
-            - Provide a clear and specific resolution
-            - If a refund is needed, confirm it will be processed within 3-5 business days
-            - If you cannot resolve the issue with the information provided, say exactly what additional information is needed
-            - Keep your response under 150 words
+        chain = billing_prompt | llm | StrOutputParser()
 
-            Similar past resolutions for reference:
-            {context}
-            """,
-        ),
-        (
-            "human",
-            """
-            Resolve this billing ticket:
+        resolution = await chain.ainvoke(
+            {
+                "title": state["title"],
+                "description": state["description"],
+                "priority": state["priority"],
+                "context": context,
+            }
+        )
 
-            Title: {title}
-            Description: {description}
-            Priority: {priority}
-            """,
-        ),
-    ]
-)
+        store_resolved_ticket(
+            category=state["category"],
+            description=state["description"],
+            resolution=resolution,
+        )
+
+        human_msg = HumanMessage(
+            content=f"Resolve billing ticket: {state['title']} - {state['description']}"
+        )
+        ai_msg = AIMessage(content=resolution)
+
+        return {
+            **state,
+            "result": resolution,
+            "status": TicketStatus.RESOLVED,
+            "messages": [human_msg, ai_msg],
+            "error": None,
+        }
+    except Exception as e:
+        return {
+            **state,
+            "error": str(e),
+            "status": TicketStatus.ESCALATED,
+        }

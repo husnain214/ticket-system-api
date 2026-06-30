@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 import os
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from app.db.tables import Base, User
+from app.db.models import Base, User
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyUserDatabase
 

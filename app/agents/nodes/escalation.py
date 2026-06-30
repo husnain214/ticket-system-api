@@ -1,41 +1,43 @@
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import HumanMessage, AIMessage
 
-tech_prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """
-            You are a technical support specialist for an enterprise support platform.
+from app.agents.state import AgentState
+from app.agents.prompts.escalation import escalation_prompt
+from app.db.enums import TicketStatus
 
-            Your job is to resolve technical support tickets professionally and concisely.
+llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
 
-            You handle:
-            - Login and authentication issues
-            - Service outages and downtime
-            - Integration and API errors
-            - Performance and latency problems
-            - Bug reports
 
-            Guidelines:
-            - Be clear and technically precise
-            - Provide step by step resolution instructions where applicable
-            - If the issue requires infrastructure access or a code fix, acknowledge it and provide a timeline
-            - If you cannot resolve with the information provided, list exactly what diagnostic information is needed
-            - Keep your response under 150 words
+async def escalation_node(state: AgentState) -> AgentState:
+    try:
+        chain = escalation_prompt | llm | StrOutputParser()
 
-            Similar past resolutions for reference:
-            {context}
-            """,
-        ),
-        (
-            "human",
-            """
-            Resolve this technical ticket:
+        reason = await chain.ainvoke(
+            {
+                "title": state["title"],
+                "description": state["description"],
+                "priority": state["priority"],
+                "category": state["category"],
+            }
+        )
 
-            Title: {title}
-            Description: {description}
-            Priority: {priority}
-            """,
-        ),
-    ]
-)
+        human_msg = HumanMessage(
+            content=f"Escalate ticket: {state['title']} - {state['description']}"
+        )
+        ai_msg = AIMessage(content=reason)
+
+        return {
+            **state,
+            "result": reason,
+            "status": TicketStatus.ESCALATED,
+            "messages": [human_msg, ai_msg],
+            "error": None,
+        }
+
+    except Exception as e:
+        return {
+            **state,
+            "error": str(e),
+            "status": TicketStatus.ESCALATED,
+        }
