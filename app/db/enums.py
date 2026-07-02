@@ -28,7 +28,7 @@ class TicketPriority(str, Enum):
 
 
 class AgentType(str, Enum):
-    ORCHESTRATOR = "orchestrator"
+    ORCHESTRATOR = "orchestrator_agent"
     BILLING_AGENT = "billing_agent"
     TECH_AGENT = "tech_agent"
     ESCALATION_AGENT = "escalation_agent"

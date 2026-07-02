@@ -1,9 +1,15 @@
+import os
+from dotenv import load_dotenv
+from pinecone import Pinecone
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 
-embeddings = OpenAIEmbeddings()
+load_dotenv()
 
-vector_store = PineconeVectorStore(index="ticket-resolutions", embedding=embeddings)
+embeddings = OpenAIEmbeddings()
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+index = pc.Index("ticket-resolutions")
+vector_store = PineconeVectorStore(index=index, embedding=embeddings)
 
 
 def search_similar_tickets(description: str, category: str, k: int = 3) -> str:

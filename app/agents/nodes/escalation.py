@@ -6,6 +6,10 @@ from app.agents.state import AgentState
 from app.agents.prompts.escalation import escalation_prompt
 from app.db.enums import TicketStatus
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
 
 

@@ -6,6 +6,10 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, AIMessage
 from app.db.enums import TicketStatus
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
 
 
