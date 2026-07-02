@@ -4,11 +4,12 @@ from contextlib import asynccontextmanager
 
 from app.routes.auth import auth_backend, fastapi_users
 from app.routes.tickets import router as tickets_router
+from app.routes.dashboard import router as dashboard_router
 from app.schemas import UserRead, UserCreate, UserUpdate
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan():
     await create_db_and_tables()
     yield
 
@@ -35,3 +36,4 @@ app.include_router(
     tags=["users"],
 )
 app.include_router(tickets_router)
+app.include_router(dashboard_router)
