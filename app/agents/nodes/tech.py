@@ -1,4 +1,4 @@
-from app.utils.pinecone_tools import search_similar_tickets, store_resolved_ticket
+from app.lib.pinecone_tools import search_similar_tickets, store_resolved_ticket
 from app.agents.state import AgentState
 from app.agents.prompts.tech import tech_prompt
 from langchain_openai import ChatOpenAI

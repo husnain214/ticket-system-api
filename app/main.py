@@ -9,7 +9,7 @@ from app.schemas import UserRead, UserCreate, UserUpdate
 
 
 @asynccontextmanager
-async def lifespan():
+async def lifespan(app: FastAPI):
     await create_db_and_tables()
     yield
 
