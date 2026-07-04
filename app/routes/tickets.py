@@ -12,6 +12,7 @@ from app.db.enums import (
 )
 from app.db.create_db import get_async_session
 from app.db.create_db import async_session_maker
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, update
 from uuid import UUID
@@ -167,10 +168,20 @@ async def fetch_ticket(
     id: UUID,
     session: AsyncSession = Depends(get_async_session),
 ):
-    ticket = await session.get(Ticket, id)
+    result = await session.execute(
+        select(Ticket)
+        .where(Ticket.id == id)
+        .options(
+            selectinload(Ticket.events),
+            selectinload(Ticket.agent_tasks),
+            selectinload(Ticket.escalation),
+        )
+    )
+    ticket = result.scalar_one_or_none()
 
     if ticket is None:
         raise HTTPException(404, "Ticket not found")
+
     return ticket
 
 

@@ -1,4 +1,7 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.db.create_db import create_db_and_tables
 from contextlib import asynccontextmanager
 
@@ -6,6 +9,8 @@ from app.routes.auth import auth_backend, fastapi_users
 from app.routes.tickets import router as tickets_router
 from app.routes.dashboard import router as dashboard_router
 from app.schemas import UserRead, UserCreate, UserUpdate
+
+load_dotenv()
 
 
 @asynccontextmanager
@@ -15,6 +20,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[os.getenv("CLIENT_URL")],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
