@@ -5,11 +5,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, AIMessage
 from app.db.enums import TicketStatus
-from dotenv import load_dotenv
+from app.core.config import settings
 
-load_dotenv()
-
-llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
+llm = ChatOpenAI(model="gpt-4o", temperature=0.3, api_key=settings.OPENAI_API_KEY)
 
 
 async def billing_node(state: AgentState) -> AgentState:

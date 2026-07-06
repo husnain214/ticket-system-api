@@ -232,17 +232,22 @@ pip install -r requirements.txt
 Create a `.env` file in the project root:
 
 ```env
-# Database
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/ticketdb
+JWT_SECRET=
+DATABASE_URL=
+REDIS_URL=
 
-# Redis
-REDIS_URL=redis://localhost:6379
+PINECONE_API_KEY=
+OPENAI_API_KEY=
 
-# Auth
-SECRET_KEY=your-secret-key-here
+CLIENT_URL=
 
-# AI
-OPENAI_API_KEY=sk-...
-PINECONE_API_KEY=...
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM=
+MAIL_FROM_NAME=
+MAIL_SERVER=
+MAIL_PORT=
+MAIL_STARTTLS=
+MAIL_SSL_TLS=
 ```
 

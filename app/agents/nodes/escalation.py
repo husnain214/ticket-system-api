@@ -5,12 +5,9 @@ from langchain_core.messages import HumanMessage, AIMessage
 from app.agents.state import AgentState
 from app.agents.prompts.escalation import escalation_prompt
 from app.db.enums import TicketStatus
+from app.core.config import settings
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
+llm = ChatOpenAI(model="gpt-4o", temperature=0.3, api_key=settings.OPENAI_API_KEY)
 
 
 async def escalation_node(state: AgentState) -> AgentState:

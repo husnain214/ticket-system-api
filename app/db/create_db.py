@@ -1,13 +1,11 @@
 from collections.abc import AsyncGenerator
-import os
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from app.db.models import Base, User
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyUserDatabase
+from app.core.config import settings
 
-load_dotenv()
-engine = create_async_engine(os.getenv("DATABASE_URL"))
+engine = create_async_engine(settings.DATABASE_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 

@@ -1,13 +1,10 @@
-import os
-from dotenv import load_dotenv
 from pinecone import Pinecone
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
+from app.core.config import settings
 
-load_dotenv()
-
-embeddings = OpenAIEmbeddings()
-pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY)
+pc = Pinecone(api_key=settings.PINECONE_API_KEY)
 index = pc.Index("ticket-resolutions")
 vector_store = PineconeVectorStore(index=index, embedding=embeddings)
 
@@ -33,7 +30,7 @@ def search_similar_tickets(description: str, category: str, k: int = 3) -> str:
             )
 
             return "\n".join(context_parts)
-    except Exception as e:
+    except Exception:
         return "No similar past tickets found."
 
 

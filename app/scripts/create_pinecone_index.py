@@ -1,10 +1,7 @@
 from pinecone import Pinecone, ServerlessSpec
-from dotenv import load_dotenv
-import os
+from app.core.config import settings
 
-load_dotenv()
-
-pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+pc = Pinecone(api_key=settings.PINECONE_API_KEY)
 
 pc.create_index(
     name="ticket-resolutions",

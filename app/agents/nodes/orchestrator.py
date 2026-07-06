@@ -4,12 +4,9 @@ from langchain_core.messages import HumanMessage, AIMessage
 from app.agents.state import AgentState
 from app.agents.prompts.orchestrator import orchestrator_prompt
 from app.db.enums import TicketCategory
+from app.core.config import settings
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-llm = ChatOpenAI(model="gpt-4o", temperature=0)
+llm = ChatOpenAI(model="gpt-4o", temperature=0, api_key=settings.OPENAI_API_KEY)
 
 
 async def orchestrator_node(state: AgentState) -> AgentState:

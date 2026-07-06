@@ -1,8 +1,8 @@
 import uuid
-from typing import Optional
+import os
 
-from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
+from fastapi import Depends
+from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
@@ -11,23 +11,39 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 from app.db.create_db import get_user_db
 from app.db.models import User
+from app.core.email import send_reset_password_email, send_verification_email
+from app.core.config import settings
+from typing import Optional
+from fastapi import Request
 
-SECRET = "secret"
+SECRET = settings.JWT_SECRET
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
 
-    async def on_after_register(self, user: User, request: Optional[Request] = None):
-        print(f"User {user.id} has registered")
+    async def on_after_register(self, user: User, request=None):
+        await self.request_verify(user, request)
+
+    async def on_after_request_verify(
+        self, user: User, token: str, request: Optional[Request] = None
+    ):
+        print("🔥 on_after_request_verify", flush=True)
+        await send_verification_email(email=user.email, token=token)
+
+    async def on_after_forgot_password(self, user: User, token: str, request=None):
+        await send_reset_password_email(user.email, token)
+
+    async def on_after_request_verify(self, user: User, token: str, request=None):
+        await send_verification_email(user.email, token)
 
 
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
 
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+bearer_transport = BearerTransport(tokenUrl="auth/login")
 
 
 def get_jwt_strategy():
