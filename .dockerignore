@@ -1,0 +1,6 @@
+.venv
+.vscode
+.env
+test.db
+__pycache__
+.git
