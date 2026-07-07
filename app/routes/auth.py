@@ -1,5 +1,7 @@
 import uuid
-import os
+from fastapi import Depends, HTTPException
+from app.db.enums import UserRole
+
 
 from fastapi import Depends
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
@@ -57,4 +59,16 @@ auth_backend = AuthenticationBackend(
 fastapi_users = FastAPIUsers[User, uuid.UUID](
     get_user_manager, auth_backends=[auth_backend]
 )
+
 current_active_user = fastapi_users.current_user(active=True)
+
+
+async def require_admin(
+    user: User = Depends(current_active_user),
+) -> User:
+    if user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required",
+        )
+    return user

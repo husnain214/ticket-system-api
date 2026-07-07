@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+from app.routes.auth import require_admin
 from app.schemas import TicketCreate
-from app.db.models import Ticket, TicketEvent, AgentTask, TicketEvent, Escalation
+from app.db.models import Ticket, TicketEvent, AgentTask, TicketEvent, Escalation, User
 from app.db.enums import (
     EventType,
     TicketStatus,
@@ -120,6 +121,7 @@ async def create_ticket(
     ticket_data: TicketCreate,
     background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
+    _: User = Depends(require_admin),
 ):
     ticket = Ticket(**ticket_data.model_dump())
     session.add(ticket)
@@ -136,6 +138,20 @@ async def create_ticket(
 
     await session.commit()
     await session.refresh(ticket)
+
+    await redis_client.publish(
+        "ticket_updates",
+        json.dumps(
+            {
+                "type": "ticket_created",
+                "ticket_id": str(ticket.id),
+                "title": ticket.title,
+                "status": ticket.status.value,
+                "priority": ticket.priority.value,
+                "category": ticket.category.value if ticket.category else None,
+            }
+        ),
+    )
 
     background_tasks.add_task(
         run_agent_workflow, ticket.id, ticket.title, ticket.description, ticket.priority
@@ -190,6 +206,7 @@ async def update_ticket_status(
     id: UUID,
     status: TicketStatus,
     session: AsyncSession = Depends(get_async_session),
+    _: User = Depends(require_admin),
 ):
     await session.execute(update(Ticket).where(Ticket.id == id).values(status=status))
     ticket = await session.get(Ticket, id)

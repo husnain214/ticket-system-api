@@ -1,10 +1,11 @@
-import os
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.create_db import create_db_and_tables
 from contextlib import asynccontextmanager
 
-from app.routes.auth import auth_backend, fastapi_users
+from app.db.seeder import seed_db
+from app.lib.pinecone import create_pinecone_index
+from app.routes.auth import auth_backend, fastapi_users, current_active_user
 from app.routes.tickets import router as tickets_router
 from app.routes.dashboard import router as dashboard_router
 from app.schemas import UserRead, UserCreate, UserUpdate
@@ -13,7 +14,9 @@ from app.core.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await create_pinecone_index()
     await create_db_and_tables()
+    await seed_db()
     yield
 
 
@@ -47,5 +50,5 @@ app.include_router(
     prefix="/users",
     tags=["users"],
 )
-app.include_router(tickets_router)
+app.include_router(tickets_router, dependencies=[Depends(current_active_user)])
 app.include_router(dashboard_router)

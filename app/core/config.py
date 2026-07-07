@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     CLIENT_URL: str
     JWT_SECRET: str
 
+    ADMIN_EMAIL: str
+    ADMIN_PASSWORD: str
+
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
     MAIL_FROM: str

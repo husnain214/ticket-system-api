@@ -13,11 +13,15 @@ from app.db.enums import (
     EventType,
     AgentTaskStatus,
     AgentType,
+    UserRole,
 )
 
 
 class UserRead(schemas.BaseUser[uuid.UUID]):
-    pass
+    role: UserRole
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreate(schemas.BaseUserCreate):
