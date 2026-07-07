@@ -17,7 +17,7 @@ mail = FastMail(conf)
 
 
 async def send_verification_email(email: str, token: str) -> None:
-    verify_url = f"{settings.CLIENT_URL}/verify-email?token={token}"
+    verify_url = f"{settings.CLIENT_URL}/verify-token?token={token}"
 
     message = MessageSchema(
         subject="Verify your email — Resolution Engine",
