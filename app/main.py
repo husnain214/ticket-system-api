@@ -31,6 +31,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/health", tags=["health"])
+async def health_check():
+    return {"status": "healthy", "message": "Server is running"}
+
+
 app.include_router(
     fastapi_users.get_auth_router(auth_backend), prefix="/auth", tags=["auth"]
 )
