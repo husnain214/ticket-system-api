@@ -2,6 +2,7 @@ from pinecone import Pinecone, ServerlessSpec
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from app.core.config import settings
+from app.db.enums import TicketCategory
 
 embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY.get_secret_value())
 pc = Pinecone(api_key=settings.PINECONE_API_KEY)
@@ -44,7 +45,7 @@ async def create_pinecone_index() -> None:
 
 def search_similar_tickets(
     description: str,
-    category: str,
+    category: TicketCategory | None,
     k: int = 3,
 ) -> str:
     """
@@ -52,10 +53,12 @@ def search_similar_tickets(
     Returns a formatted context string for use in agent prompts.
     """
     try:
+        category_str = category.value if category else "general"
+
         results = get_vector_store().similarity_search(
             description,
             k=k,
-            filter={"category": category},
+            filter={"category": category_str},
         )
 
         if not results:
