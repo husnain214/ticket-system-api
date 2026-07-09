@@ -3,8 +3,11 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from app.core.config import settings
 from app.db.enums import TicketCategory
+from dotenv import load_dotenv
 
-embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY.get_secret_value())
+load_dotenv()
+
+embeddings = OpenAIEmbeddings()
 pc = Pinecone(api_key=settings.PINECONE_API_KEY)
 
 
@@ -80,13 +83,15 @@ def search_similar_tickets(
 def store_resolved_ticket(
     description: str,
     resolution: str,
-    category: str,
+    category: TicketCategory | None,
 ) -> None:
     """
     Stores a resolved ticket in Pinecone so future agents
     can use it as context for similar tickets.
     """
+    category_str = category.value if category else "general"
+
     get_vector_store().add_texts(
         texts=[description],
-        metadatas=[{"resolution": resolution, "category": category}],
+        metadatas=[{"resolution": resolution, "category": category_str}],
     )
