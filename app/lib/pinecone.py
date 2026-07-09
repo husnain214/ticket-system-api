@@ -3,7 +3,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from app.core.config import settings
 
-embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY)
+embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY.get_secret_value())
 pc = Pinecone(api_key=settings.PINECONE_API_KEY)
 
 

@@ -7,7 +7,9 @@ from app.agents.prompts.escalation import escalation_prompt
 from app.db.enums import TicketStatus
 from app.core.config import settings
 
-llm = ChatOpenAI(model="gpt-4o", temperature=0.3, api_key=settings.OPENAI_API_KEY)
+llm = ChatOpenAI(
+    model="gpt-4o", temperature=0.3, api_key=settings.OPENAI_API_KEY.get_secret_value()
+)
 
 
 async def escalation_node(state: AgentState) -> AgentState:

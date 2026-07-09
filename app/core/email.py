@@ -4,7 +4,7 @@ from app.core.config import settings
 
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.MAIL_USERNAME,
-    MAIL_PASSWORD=settings.MAIL_PASSWORD,
+    MAIL_PASSWORD=settings.MAIL_PASSWORD.get_secret_value(),
     MAIL_FROM=settings.MAIL_FROM,
     MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
     MAIL_PORT=settings.MAIL_PORT,

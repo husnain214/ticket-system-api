@@ -6,7 +6,9 @@ from app.agents.prompts.orchestrator import orchestrator_prompt
 from app.db.enums import TicketCategory
 from app.core.config import settings
 
-llm = ChatOpenAI(model="gpt-4o", temperature=0, api_key=settings.OPENAI_API_KEY)
+llm = ChatOpenAI(
+    model="gpt-4o", temperature=0, api_key=settings.OPENAI_API_KEY.get_secret_value()
+)
 
 
 async def orchestrator_node(state: AgentState) -> AgentState:

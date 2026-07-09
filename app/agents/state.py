@@ -9,7 +9,7 @@ class AgentState(TypedDict):
     ticket_id: UUID
     title: str
     description: str
-    category: TicketCategory
+    category: TicketCategory | None
     priority: TicketPriority
     result: Optional[str]
     status: TicketStatus
