@@ -31,14 +31,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
     ):
-        print("🔥 on_after_request_verify", flush=True)
         await send_verification_email(email=user.email, token=token)
-
-    async def on_after_forgot_password(self, user: User, token: str, request=None):
-        await send_reset_password_email(user.email, token)
-
-    async def on_after_request_verify(self, user: User, token: str, request=None):
-        await send_verification_email(user.email, token)
 
 
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):

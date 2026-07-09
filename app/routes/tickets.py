@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from app.routes.auth import require_admin
 from app.schemas import TicketCreate
-from app.db.models import Ticket, TicketEvent, AgentTask, TicketEvent, Escalation, User
+from app.db.models import Ticket, TicketEvent, AgentTask, Escalation, User
 from app.db.enums import (
     EventType,
     TicketStatus,
