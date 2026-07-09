@@ -1,10 +1,9 @@
-from fastapi import APIRouter, WebSocket
-from app.lib.redis import redis_client
-from fastapi import Depends
+from fastapi import APIRouter, WebSocket, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func
+from sqlalchemy import func, select
+
+from app.lib.redis import redis_client
 from app.db.create_db import get_async_session
-from sqlalchemy import select
 from app.db.models import Ticket, Escalation, User
 from app.db.enums import TicketStatus
 from app.routes.auth import current_active_user
@@ -38,7 +37,9 @@ async def fetch_analytics(
     session: AsyncSession = Depends(get_async_session),
     _: User = Depends(current_active_user),
 ):
-    total_tickets = await session.scalar(select(func.count()).select_from(Ticket))
+    total_tickets = (
+        await session.scalar(select(func.count()).select_from(Ticket))
+    ) or 0
 
     if total_tickets == 0:
         return {
@@ -49,23 +50,27 @@ async def fetch_analytics(
             "resolution_rate": 0,
         }
 
-    pending_tickets = await session.scalar(
-        select(func.count())
-        .select_from(Ticket)
-        .where(Ticket.status == TicketStatus.PENDING)
-    )
+    pending_tickets = (
+        await session.scalar(
+            select(func.count())
+            .select_from(Ticket)
+            .where(Ticket.status == TicketStatus.PENDING)
+        )
+    ) or 0
 
-    resolved_tickets = await session.scalar(
-        select(func.count())
-        .select_from(Ticket)
-        .where(Ticket.status == TicketStatus.RESOLVED)
-    )
+    resolved_tickets = (
+        await session.scalar(
+            select(func.count())
+            .select_from(Ticket)
+            .where(Ticket.status == TicketStatus.RESOLVED)
+        )
+    ) or 0
 
-    escalations = await session.scalar(select(func.count()).select_from(Escalation))
+    escalations = (
+        await session.scalar(select(func.count()).select_from(Escalation))
+    ) or 0
 
-    resolution_rate = (
-        int(resolved_tickets / total_tickets * 100) if total_tickets > 0 else 0
-    )
+    resolution_rate = int((resolved_tickets / total_tickets) * 100)
 
     return {
         "total_tickets": total_tickets,

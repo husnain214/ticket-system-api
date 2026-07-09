@@ -19,6 +19,7 @@ from sqlalchemy import select, desc, update
 from uuid import UUID
 from fastapi import Depends
 from app.agents.graph import agent_app
+from app.agents.state import AgentState
 from datetime import datetime
 import json
 from app.lib.redis import redis_client
@@ -34,19 +35,19 @@ async def run_agent_workflow(
 ):
     started_at = datetime.utcnow()
 
-    agent_result = await agent_app.ainvoke(
-        {
-            "ticket_id": ticket_id,
-            "title": title,
-            "description": description,
-            "category": None,
-            "priority": priority,
-            "result": None,
-            "status": TicketStatus.PENDING,
-            "messages": [],
-            "error": None,
-        }
-    )
+    state: AgentState = {
+        "ticket_id": ticket_id,
+        "title": title,
+        "description": description,
+        "category": None,
+        "priority": priority,
+        "result": None,
+        "status": TicketStatus.PENDING,
+        "messages": [],
+        "error": None,
+    }
+
+    agent_result = await agent_app.ainvoke(state)
 
     completed_at = datetime.utcnow()
 

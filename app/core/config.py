@@ -1,9 +1,10 @@
 from pydantic_settings import BaseSettings
+from pydantic import SecretStr
 
 
 class Settings(BaseSettings):
     DATABASE_URL: str
-    OPENAI_API_KEY: str
+    OPENAI_API_KEY: SecretStr
     PINECONE_API_KEY: str
     REDIS_URL: str
     CLIENT_URL: str
@@ -13,7 +14,7 @@ class Settings(BaseSettings):
     ADMIN_PASSWORD: str
 
     MAIL_USERNAME: str
-    MAIL_PASSWORD: str
+    MAIL_PASSWORD: SecretStr
     MAIL_FROM: str
     MAIL_FROM_NAME: str = "Resolution Engine"
     MAIL_SERVER: str

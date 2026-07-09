@@ -1,4 +1,5 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+from pydantic import NameEmail
 from app.core.config import settings
 
 conf = ConnectionConfig(
@@ -21,7 +22,7 @@ async def send_verification_email(email: str, token: str) -> None:
 
     message = MessageSchema(
         subject="Verify your email — Resolution Engine",
-        recipients=[email],
+        recipients=[NameEmail(name=email, email=email)],
         body=f"""
         <html>
           <body style="font-family: Inter, sans-serif; background: #0A0D12; color: #F9FAFB; padding: 40px;">
