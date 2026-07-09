@@ -12,3 +12,5 @@ README.md
 *.egg-info
 dist
 build
+.github
+ticket-system-ec2.pem

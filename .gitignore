@@ -4,3 +4,4 @@ __pycache__
 .venv
 .vscode
 test.py
+ticket-system-ec2.pem
