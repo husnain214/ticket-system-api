@@ -1,13 +1,11 @@
 import uuid
-from dotenv import load_dotenv
+from app.core.config import settings
+from fastapi_users.password import PasswordHelper
 
-load_dotenv()
 
 from app.db.create_db import async_session_maker
 from app.db.models import User
 from app.db.enums import UserRole
-from fastapi_users.password import PasswordHelper
-from app.core.config import settings
 
 password_helper = PasswordHelper()
 

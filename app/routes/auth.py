@@ -3,7 +3,6 @@ from fastapi import Depends, HTTPException
 from app.db.enums import UserRole
 
 
-from fastapi import Depends
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -13,7 +12,7 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 from app.db.create_db import get_user_db
 from app.db.models import User
-from app.core.email import send_reset_password_email, send_verification_email
+from app.core.email import send_verification_email
 from app.core.config import settings
 from typing import Optional
 from fastapi import Request
