@@ -46,7 +46,7 @@ async def send_verification_email(email: str, token: str) -> None:
     )
     try:
         await mail.send_message(message)
-    except Exception as e:
+    except Exception:
         import traceback
 
         traceback.print_exc()

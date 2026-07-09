@@ -1,4 +1,4 @@
-from typing import TypedDict, Text, Annotated, Sequence, Optional
+from typing import TypedDict, Annotated, Sequence, Optional
 from uuid import UUID
 from app.db.enums import TicketCategory, TicketPriority, TicketStatus
 from langchain_core.messages import BaseMessage
