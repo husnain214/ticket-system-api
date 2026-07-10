@@ -2,7 +2,7 @@
 
 A multi-agent backend that automatically classifies, routes, and resolves enterprise support tickets. Incoming tickets are processed by a LangGraph orchestration layer that routes them to specialized AI agents, with resolutions augmented by semantic search over past tickets. Results are pushed to connected clients in real time via WebSocket.
 
-**Frontend repo:** [ticket-system-dashboard](https://github.com/yourname/ticket-system-dashboard) · **Live API:** https://your-ec2-domain.com
+**Frontend repo:** [ticket-system-dashboard](https://github.com/husnain214/ticket-system-client) · **Live API:** http://d16ys3p7ql9k5b.cloudfront.net
 
 ---
 
@@ -73,6 +73,7 @@ FastAPI · PostgreSQL · SQLAlchemy (async) · LangGraph · LangChain · OpenAI 
 ## Local setup
 
 ### Prerequisites
+
 - Python 3.13+
 - Docker (for Redis)
 - OpenAI API key
@@ -81,7 +82,7 @@ FastAPI · PostgreSQL · SQLAlchemy (async) · LangGraph · LangChain · OpenAI 
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/yourname/ticket-system-api
+git clone https://github.com/husnain214/ticket-system-api
 cd ticket-system-api
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
@@ -113,6 +114,7 @@ MAIL_SSL_TLS=True
 ```
 
 Generate a secure `JWT_SECRET`:
+
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
@@ -130,6 +132,7 @@ uvicorn app.main:app --reload
 ```
 
 On first run the server automatically:
+
 - Creates all database tables
 - Seeds the admin user from `ADMIN_EMAIL` / `ADMIN_PASSWORD`
 - Creates the Pinecone index if it doesn't exist
@@ -163,43 +166,40 @@ app/
 │   ├── nodes/                # orchestrator, billing, tech, escalation
 │   ├── prompts/              # prompt templates per agent
 │   └── tools/                # db tools
+├── auth/                     # fastapi-users setup
 ├── core/
 │   ├── config.py             # pydantic settings
 │   ├── email.py              # fastapi-mail setup
+│   └── redis.py              # Redis client
 ├── db/
 │   ├── tables.py             # SQLAlchemy models
 │   ├── enums.py              # all enums
 │   └── database.py           # async session + engine
 ├── routes/
-│   ├── auth.py               # fastapi-users setup
 │   ├── tickets.py            # ticket CRUD
 │   └── dashboard.py          # WebSocket + analytics
 ├── scripts/
 │   ├── seed_admin.py         # admin user seeding
 │   └── create_pinecone_index.py
-├── lib/
+├── utils/
 │   └── pinecone.py           # search + store functions
-│   └── redis.py              # Redis client
-└── main.py                   # entrypoint
-└── schemas.py                # pydantic schemas
+└── main.py
 ```
 
 ---
 
 ## API routes
 
-| Method | Route | Auth | Description |
-|---|---|---|---|
-| `POST` | `/auth/register` | Public | Create account |
-| `POST` | `/auth/jwt/login` | Public | Get JWT token |
-| `POST` | `/auth/forgot-password` | Public | Request reset email |
-| `POST` | `/auth/reset-password` | Public | Set new password |
-| `GET` | `/users/me` | JWT | Current user |
-| `POST` | `/tickets` | Admin JWT | Create ticket + trigger agents |
-| `GET` | `/tickets` | JWT | List tickets with filters |
-| `GET` | `/tickets/{id}` | JWT | Ticket detail with events |
-| `GET` | `/analytics` | JWT | Dashboard metrics |
-| `WS` | `/ws/dashboard` | None | Live ticket updates |
+| Method | Route             | Auth      | Description                    |
+| ------ | ----------------- | --------- | ------------------------------ |
+| `POST` | `/auth/register`  | Public    | Create account                 |
+| `POST` | `/auth/jwt/login` | Public    | Get JWT token                  |
+| `GET`  | `/users/me`       | JWT       | Current user                   |
+| `POST` | `/tickets`        | Admin JWT | Create ticket + trigger agents |
+| `GET`  | `/tickets`        | JWT       | List tickets with filters      |
+| `GET`  | `/tickets/{id}`   | JWT       | Ticket detail with events      |
+| `GET`  | `/analytics`      | JWT       | Dashboard metrics              |
+| `WS`   | `/ws/dashboard`   | None      | Live ticket updates            |
 
 ---
 
